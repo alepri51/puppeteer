@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Создание и удаление</title>
+    <!--
+        Укажите свой API-ключ. Тестовый ключ НЕ БУДЕТ работать на других сайтах.
+        Получить ключ можно в Кабинете разработчика: https://developer.tech.yandex.ru/keys/
+    -->
+    <!-- <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script> -->
+    <!-- <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=<ваш API-ключ>" type="text/javascript"></script> -->
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172" type="text/javascript"></script>
+    <!-- <script src="mapbasics.js" type="text/javascript"></script> -->
+    
+    <script>
+        async function GetMetroRoutes({ from, metro, types }) {
+            let [lat, lon] = from;
+            from = [lon, lat];
+
+            /* for (let station of metro) {
+                let [lat, lon] = station.coordinates;
+                let coordinates = [lon, lat];
+
+                let info = await GetRoute({ from, to: coordinates, type });
+
+                station = { ...station, ...info };
+            } */
+
+            metro = metro.map(async station => {
+                let [lat, lon] = station.coordinates;
+                let coordinates = [lon, lat];
+
+                for (let type of types) {
+                    let info = await GetRoute({ from, to: coordinates, type });
+                
+                    station[type] = info;
+                }
+                /* station = types.reduce(async (memo, type) => {
+                    let info = await GetRoute({ from, to: coordinates, type });
+
+                    memo[type] = info;
+
+                    return memo;
+                }, station); */
+
+                return station;
+            });
+            
+            metro = await Promise.all(metro);
+
+            return metro;
+        }
+
+        async function GetRoute({ from, to, type }) {
+            const promise = new Promise(resolve => {
+                var multiRoute = new ymaps.multiRouter.MultiRoute({   
+                    referencePoints: [
+                        from, // улица Льва Толстого.
+                        to, // Филлиповский.
+                    ],
+                    params: {
+                        avoidTrafficJams: true,
+                        routingMode: type
+                        // Тип маршрута:
+                        //routingMode: "auto"  
+                        //routingMode: "masstransit"  
+                        //routingMode: "pedestrian"  
+                        //routingMode: "bicycle"  
+                    }
+                }, {
+                    // Автоматически устанавливать границы карты так,
+                    // чтобы маршрут был виден целиком.
+                    //boundsAutoApply: true
+                });
+
+                window.myMap.geoObjects.add(multiRoute);
+
+                multiRoute.model.events.add('requestsuccess', function() {
+                    let activeRoute = multiRoute.getActiveRoute();
+                    
+                    try {
+                        resolve({
+                            type,
+                            distance: activeRoute.properties.get("distance"),
+                            duration: activeRoute.properties.get("duration")
+                        })
+                    }
+                    catch(err) {
+                        resolve(err);
+                    }
+
+                }); 
+            });
+
+            return promise;
+        }
+
+        ymaps.ready(async () => {
+            window.myMap = new ymaps.Map('map', {
+                center: [55.753609, 37.621405],
+                zoom: 14,
+                controls: []
+            });
+        
+            metro = [
+                {
+                    "name": "метро Охотный Ряд",
+                    "description": "Сокольническая линия, Москва, Россия",
+                    "coordinates": [
+                        37.615524,
+                        55.756964
+                    ]
+                },
+                {
+                    "name": "метро Театральная",
+                    "description": "Замоскворецкая линия, Москва, Россия",
+                    "coordinates": [
+                        37.619001,
+                        55.757967
+                    ]
+                },
+                {
+                    "name": "метро Тверская",
+                    "description": "Замоскворецкая линия, Москва, Россия",
+                    "coordinates": [
+                        37.605939,
+                        55.764455
+                    ]
+                }
+            ];
+
+            //test
+            let routes = await GetMetroRoutes({ from: [37.598431, 55.749977], metro, types: ['auto', 'pedestrian', 'masstransit'] });
+ 
+            // Создание экземпляра маршрута.
+            /* var multiRoute = new ymaps.multiRouter.MultiRoute({   
+                // Точки маршрута.
+                // Обязательное поле. 
+                referencePoints: [
+                    //'Москва, метро Смоленская',
+                    //'Москва, метро Арбатская',
+                    [55.734876, 37.59308], // улица Льва Толстого.
+                    [55.750008, 37.598401], // Филлиповский.
+                ],
+                params: {
+                    avoidTrafficJams: true,
+                    // Тип маршрута: на общественном транспорте.
+                    //routingMode: "auto"  
+                    routingMode: "masstransit"  
+                    //routingMode: "pedestrian"  
+                    //routingMode: "bicycle"  
+                }
+            }, {
+                // Автоматически устанавливать границы карты так,
+                // чтобы маршрут был виден целиком.
+                boundsAutoApply: true
+            });
+
+            // Добавление маршрута на карту.
+            myMap.geoObjects.add(multiRoute);
+
+            multiRoute.model.events.add('requestsuccess', function() {
+                // Получение ссылки на активный маршрут.
+                // В примере используется автомобильный маршрут,
+                // поэтому метод getActiveRoute() вернет объект multiRouter.driving.Route.
+                var activeRoute = multiRoute.getActiveRoute();
+                document.$activeRoute = activeRoute;
+                // Вывод информации о маршруте.
+                console.log("Длина: " + activeRoute.properties.get("distance").text);
+                console.log("Время прохождения: " + activeRoute.properties.get("duration").text);
+
+                document.getElementById('info').innerText = "Длина: " + activeRoute.properties.get("distance").text;
+                // Для автомобильных маршрутов можно вывести 
+                // информацию о перекрытых участках.
+                if (activeRoute.properties.get("blocked")) {
+                    console.log("На маршруте имеются участки с перекрытыми дорогами.");
+                }
+            });  */
+        });
+    </script>
+
+
+	<style>
+        body, html {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #map {
+            width: 100%;
+            height: 90%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="info"></div>
+
+    <input type="button" id="destroyButton" value="Удалить карту"/>
+</body>
+
+</html>
