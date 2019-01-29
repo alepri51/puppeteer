@@ -4,9 +4,11 @@ const axios = require('axios');
 (async () => {
     //долгота = lat
     //широта = lоt
-    let [lat, lon] = [37.598431, 55.749977]; //building_id
+    
+    let [lat, lon] = [37.094162, 55.945471]; //building_id
     let building_id = [lat, lon];
 
+    //let response = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${lat},${lon}&kind=metro&results=3&format=json`);
     let { data: { response: { GeoObjectCollection: { featureMember: metro = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${lat},${lon}&kind=metro&results=3&format=json`);
 
     metro = metro.map(({ GeoObject: geo }) => {
@@ -38,9 +40,9 @@ const axios = require('axios');
 
     }, metro, building_id);
 
-    await page.screenshot({path: 'example.png'});
+    //await page.screenshot({path: 'example.png'});
 
-    //console.log(res);
+    console.log(res);
 
     await browser.close();
 })();
