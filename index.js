@@ -94,9 +94,8 @@ const query = async ({ driver, query, params, options }) => {
 
     //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('Мурманск, связи, 3')}&format=json`);
     //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('Кадоган-лэйн Лондон')}&format=json`);
-    //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('москва, новочеркасский, 30')}&format=json`);
+    let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('москва, новочеркасский, 30')}&format=json`);
     //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('Воронежская область,лискинский район, село Владимировка, ул Солнечная, 10')}&format=json`);
-    let fred = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('Воронежская область,лискинский район, село Владимировка, ул Солнечная, 10')}&format=json`);
     //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('Шабур остров')}&format=json`);
     //let { data: { response: { GeoObjectCollection: { featureMember: found = [] }}}} = await axios.get(`https://geocode-maps.yandex.ru/1.x/?apikey=3eb0b0b4-b25d-42a9-92ad-9c04dbd2e172&geocode=${encodeURIComponent('новая москва')}&format=json`);
 
